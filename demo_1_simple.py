@@ -7,20 +7,17 @@ import numpy as np
 
 from vivace import pulsed
 
-output_port = 3
+output_port = 1
 input_port = 1
 
-# ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
-# PORT = 3490
-ADDRESS = "130.237.35.90"  # set address/hostname of Vivace here
-PORT = 42090
+ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS, port=PORT) as pls:
+with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     ######################################################################
     # Select input ports to store and the duration of each store
     pls.set_store_ports(input_port)
-    pls.set_store_duration(1e-6)  # 1 microsecond
+    pls.set_store_duration(500e-9)  # 500 ns
 
     ######################################################################
     # create a 512-sample-long template on output_port
@@ -47,5 +44,6 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS, port=PORT) as pls:
 fig, ax = plt.subplots(tight_layout=True)
 ax.plot(1e9 * t_arr, data[0, 0, :], label="store 0, port 0")
 ax.set_xlabel("Time [ns]")
+ax.set_ylabel("Input signal [FS]")
 ax.legend()
 fig.show()
