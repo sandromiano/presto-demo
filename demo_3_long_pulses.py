@@ -7,7 +7,7 @@ Connect Out 1 to In 1 and Out 2 to In 2.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from vivace import pulsed
+from presto import pulsed
 
 ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
@@ -16,30 +16,32 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
     pls.set_store_ports([1, 2])
-    pls.set_store_duration(4e-6)
+    pls.set_store_duration(8e-6)
 
     ######################################################################
     # create a long pulse using multiple templates on port 1
     N = 14000  # longer than pulsed.MAX_TEMPLATE_LEN = 4088!
-    t = np.arange(N) / pls.sampling_freq
+    t = np.arange(N) / pls.get_fs('dac')
     freq = 55e6
     data = np.sin(2 * np.pi * freq * t) * np.hanning(N)
     port = 1
-    template_1 = pls.setup_template(port, data)  # setup_template will split the template into 4 segments
+    template_1 = pls.setup_template(port, 0, data)  # setup_template will split the template into 4 segments
+
 
     ######################################################################
     # create a long pulse from sections using long_drive
     # See demo_4 for setup_freq_lut and carrier
     port = 2
-    carrier = 1
+    group = 0
     freq = 55e6
     phase = 0.0
-    pls.setup_freq_lut(port, carrier, freq, phase)  # see demo_4
+    pls.setup_freq_lut(port, group, freq, phase)  # see demo_4
+    pls.setup_scale_lut(port, group, 1.0)
 
-    # a pulse 3.5 us long, with 1 us rise time and 1 us fall time
+    # a pulse 7 us long, with 1 us rise time and 1 us fall time
     template_2 = pls.setup_long_drive(output_port=port,
-                                      carrier=carrier,
-                                      duration=3.5e-6,
+                                      group=group,
+                                      duration=7e-6,
                                       amplitude=1.0,
                                       rise_time=1.0e-6,
                                       fall_time=1.0e-6)
@@ -48,14 +50,14 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     # define the sequence of pulses and data stores in time
     # output the long pulse and store the beginning of the pulses
     T = 0.0
-    pls.select_frequency(T, 0, carrier)  # see demo_4
+    pls.select_frequency(T, 0, port, group)  # see demo_4
+    pls.reset_phase(T, output_ports=2)
     pls.output_pulse(T, template_1)
     pls.output_pulse(T, template_2)
     pls.store(T)
 
-    t_arr, data = pls.perform_measurement(period=100e-6,
-                                          repeat_count=1,
-                                          num_averages=1)
+    pls.run(period=100e-6, repeat_count=1, num_averages=1)
+    t_arr, data = pls.get_store_data()
 
 fig, ax = plt.subplots(2, sharex=True, sharey=True)
 ax[0].plot(1e6 * t_arr, data[0, 0, :], label=f"port 0")

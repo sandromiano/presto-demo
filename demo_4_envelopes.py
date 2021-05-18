@@ -5,7 +5,7 @@ Connect Out 1 to In 1.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from vivace import pulsed
+from presto import pulsed
 
 input_port = 1
 output_port = 1
@@ -19,21 +19,25 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     pls.set_store_ports(input_port)
     pls.set_store_duration(2e-6)
 
+
+    # setup output scale for the port and group, only one scale used
+    pls.setup_scale_lut(output_port, group=0, scales=1.0)
+
     ######################################################################
     # Sinewave generator, template as envelope
 
     # The template defines the envelope, specify that it is an envelope
     # for carrier generator 1
     N = pulsed.MAX_TEMPLATE_LEN
-    t = np.arange(N) / pls.sampling_freq
+    t = np.arange(N) / pls.get_fs('adc')
     s = np.hanning(N)
-    template_1 = pls.setup_template(output_port, s, envelope=1)
+    template_1 = pls.setup_template(output_port, 0, s, envelope=1)
 
     # setup a list of frequencies for carrier generator 1
     f = np.logspace(6, 8, 10)  # 1 MHz to 100 MHz, logarithmically
     p = np.zeros(10)
     pls.setup_freq_lut(output_ports=output_port,
-                       carrier=1,
+                       group=0,
                        frequencies=f,
                        phases=p)
 
@@ -41,13 +45,13 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     # define the sequence of pulses and data stores in time
     for i in range(10):
         T = 10e-6 * i
+        pls.reset_phase(T, output_port)
         pls.output_pulse(T, template_1)
         pls.store(T)
         pls.next_frequency(T + 5e-6, output_port)
 
-    t_arr, data = pls.perform_measurement(period=500e-6,
-                                          repeat_count=1,
-                                          num_averages=1)
+    pls.run(period=500e-6, repeat_count=1, num_averages=1)
+    t_arr, data = pls.get_store_data()
 
 fig, ax = plt.subplots(10, figsize=(6.4, 9.6), sharex=True, sharey=True, tight_layout=True)
 for i in range(10):
