@@ -13,7 +13,12 @@ output_port = 1
 ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
+with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
+                   adc_mode=pulsed.AdcMode.Direct,
+                   adc_fsample=pulsed.AdcFSample.G3_2,
+                   dac_mode=pulsed.DacMode.Direct,
+                   dac_fsample=pulsed.DacFSample.G6_4,
+                   ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
     pls.set_store_ports(input_port)
@@ -61,11 +66,13 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     pls.next_scale(T, output_port)
     T += 5e-6
 
-    # repeat the time sequence 64 times. Run the total sequence 100 times and average the results.
+    # repeat the time sequence 64 times.
+    # Run the total sequence 100 times and average the results.
     pls.run(period=T, repeat_count=NSCALES, num_averages=100)
     t_arr, data = pls.get_store_data()
 
-fig, ax = plt.subplots(8, 8, sharex=True, sharey=True, tight_layout=True, figsize=(12.8, 9.6))
+fig, ax = plt.subplots(8, 8, sharex=True, sharey=True,
+                       tight_layout=True, figsize=(12.8, 9.6))
 for freq in range(NFREQ):
     for scale in range(NSCALES):
         ax[freq, scale].plot(1e6 * t_arr, data[scale * NFREQ + freq, 0, :])

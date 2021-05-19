@@ -1,12 +1,14 @@
 """ Max out templates!
 
 Create 16 templates on each port, and output all 128 of them.
-Set different window functions on each port, and different frequencies on each template.
-Sample the maximum sampling length on all inputs, 16 times.
+Set different window functions on each port, and different frequencies
+on each template.
+Sample the all inputs, 16 times.
 
 This example stresses the input/output bandwidth of Vivace.
 
-Connect all outputs to all inputs in loop-back: Out 1 to In 1, Out 2 to In 2, ...
+Connect all outputs to all inputs in loop-back: 
+Out 1 to In 1, Out 2 to In 2, ...
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +19,12 @@ ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 store_duration = 2e-6
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
+with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
+                   adc_mode=pulsed.AdcMode.Direct,
+                   adc_fsample=pulsed.AdcFSample.G3_2,
+                   dac_mode=pulsed.DacMode.Direct,
+                   dac_fsample=pulsed.DacFSample.G6_4,
+                   ) as pls:
     # Select inputs to store and the duration of each store
     pls.set_store_ports([1, 2, 3, 4, 5, 6, 7, 8])  # all ports
     pls.set_store_duration(store_duration)  # 4096 ns
@@ -44,7 +51,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
         for template_index in range(16):  # loop through all templates
             freq = 10e6 + 1e6 * template_index
             s = np.sin(2 * np.pi * freq * t) * window[port - 1]
-            group = template_index//8 # 8 templates in each group
+            group = template_index//8  # 8 templates in each group
             temp = pls.setup_template(port, group=group, template=s)
             templates[port - 1].append(temp)
 

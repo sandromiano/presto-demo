@@ -12,11 +12,16 @@ from presto import pulsed
 ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
+with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
+                   adc_mode=pulsed.AdcMode.Direct,
+                   adc_fsample=pulsed.AdcFSample.G3_2,
+                   dac_mode=pulsed.DacMode.Direct,
+                   dac_fsample=pulsed.DacFSample.G6_4,
+                   ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
     pls.set_store_ports([1, 2])
-    pls.set_store_duration(8e-6)
+    pls.set_store_duration(9.5e-6)
 
     ######################################################################
     # create a long pulse using multiple templates on port 1
@@ -25,8 +30,8 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     freq = 55e6
     data = np.sin(2 * np.pi * freq * t) * np.hanning(N)
     port = 1
-    template_1 = pls.setup_template(port, 0, data)  # setup_template will split the template into 4 segments
-
+    # setup_template will split the template into 4 segments
+    template_1 = pls.setup_template(port, 0, data)
 
     ######################################################################
     # create a long pulse from sections using long_drive
@@ -38,10 +43,11 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     pls.setup_freq_lut(port, group, freq, phase)  # see demo_4
     pls.setup_scale_lut(port, group, 1.0)
 
-    # a pulse 7 us long, with 1 us rise time and 1 us fall time
+    # a pulse with the sampe lenght, with 1 us rise time and 1 us fall time
+    duration = N / pls.get_fs('dac')
     template_2 = pls.setup_long_drive(output_port=port,
                                       group=group,
-                                      duration=7e-6,
+                                      duration=duration,
                                       amplitude=1.0,
                                       rise_time=1.0e-6,
                                       fall_time=1.0e-6)

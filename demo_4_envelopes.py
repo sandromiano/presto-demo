@@ -13,12 +13,16 @@ output_port = 1
 ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
+with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
+                   adc_mode=pulsed.AdcMode.Direct,
+                   adc_fsample=pulsed.AdcFSample.G3_2,
+                   dac_mode=pulsed.DacMode.Direct,
+                   dac_fsample=pulsed.DacFSample.G6_4,
+                   ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
     pls.set_store_ports(input_port)
     pls.set_store_duration(2e-6)
-
 
     # setup output scale for the port and group, only one scale used
     pls.setup_scale_lut(output_port, group=0, scales=1.0)
@@ -53,7 +57,8 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS) as pls:
     pls.run(period=500e-6, repeat_count=1, num_averages=1)
     t_arr, data = pls.get_store_data()
 
-fig, ax = plt.subplots(10, figsize=(6.4, 9.6), sharex=True, sharey=True, tight_layout=True)
+fig, ax = plt.subplots(10, figsize=(6.4, 9.6), sharex=True,
+                       sharey=True, tight_layout=True)
 for i in range(10):
     ax[i].plot(1e6 * t_arr, data[i, 0, :], label=f"{f[i] / 1e6:.1f} MHz")
     ax[i].legend(loc="upper right")
