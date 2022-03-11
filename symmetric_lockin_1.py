@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Drive a frequency comb with 192 tones equally spaced between 2254 MHz and 2445 MHz. All tones
+have same amplitude and random (fixed) phase. Acquire some raw lock-in measurements at 1 MHz rate,
+and some mean and standard deviation at 4 kHz rate. Compare the results and plot.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,12 +18,10 @@ ADDRESS = "192.168.88.59"  # Presto's IP address
 INPUT_PORT = 1
 OUTPUT_PORT = 1  # can be a list
 
-
-
 # 1 MHz, demodulation rate
-DF = 1e6
-# 2 GHz, frequency of numerically-controlled oscillator for up/down-conversion
-NCO_FREQ = 2e9
+DF = 1.0 * 1e6
+# 2.1 GHz, frequency of numerically-controlled oscillator for up/down-conversion
+NCO_FREQ = 2.1 * 1e9
 # 192 IF frequencies between 154 MHz and 345 MHz
 IF_FREQ_ARR = 250e6 + 1e6 * np.arange(-96, 96)
 NR_FREQS = len(IF_FREQ_ARR)
@@ -160,14 +162,15 @@ time_arr = np.arange(NR_MEAS) * (NSUM / lck.get_df())
 
 fig1, ax1 = plt.subplots(3, 1, sharex=True, tight_layout=True)
 ax11, ax12, ax13 = ax1
-ax11.plot(1e6 * time_arr, manual_mean[:, FREQ_IDX].real, label="manual")
-ax11.plot(1e6 * time_arr, data_mean[:, FREQ_IDX].real, label="presto")
-ax12.plot(1e6 * time_arr, manual_mean[:, FREQ_IDX].imag)
-ax12.plot(1e6 * time_arr, data_mean[:, FREQ_IDX].imag)
-ax13.plot(1e6 * time_arr, manual_std[:, FREQ_IDX])
-ax13.plot(1e6 * time_arr, data_std[:, FREQ_IDX])
+ax11.plot(1e3 * time_arr, manual_mean[:, FREQ_IDX].real, label="manual")
+ax11.plot(1e3 * time_arr, data_mean[:, FREQ_IDX].real, label="presto")
+ax12.plot(1e3 * time_arr, manual_mean[:, FREQ_IDX].imag)
+ax12.plot(1e3 * time_arr, data_mean[:, FREQ_IDX].imag)
+ax13.plot(1e3 * time_arr, manual_std[:, FREQ_IDX])
+ax13.plot(1e3 * time_arr, data_std[:, FREQ_IDX])
 ax11.set_ylabel("Mean, real")
 ax12.set_ylabel("Mean, imag")
 ax13.set_ylabel("Std")
-ax13.set_xlabel("Time [μs]")
+ax13.set_xlabel("Time [ms]")
+ax11.legend(ncol=2)
 fig1.show()
