@@ -32,6 +32,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     port = 1
     # setup_template will split the template into 4 segments
     template_1 = pls.setup_template(port, 0, data)
+    pls.setup_scale_lut(port, 0, 1.0)
 
     ######################################################################
     # create a long pulse from sections using long_drive
