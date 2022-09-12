@@ -13,12 +13,14 @@ input_port = 1
 ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
-                   adc_mode=pulsed.AdcMode.Direct,
-                   adc_fsample=pulsed.AdcFSample.G3_2,
-                   dac_mode=pulsed.DacMode.Direct,
-                   dac_fsample=pulsed.DacFSample.G6_4,
-                   ) as pls:
+with pulsed.Pulsed(
+    ext_ref_clk=EXT_REF,
+    address=ADDRESS,
+    adc_mode=pulsed.AdcMode.Direct,
+    adc_fsample=pulsed.AdcFSample.G3_2,
+    dac_mode=pulsed.DacMode.Direct,
+    dac_fsample=pulsed.DacFSample.G6_4,
+) as pls:
     ######################################################################
     # Select input ports to store and the duration of each store
     pls.set_store_ports(input_port)
@@ -28,7 +30,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     # create a 512-sample-long template on output_port
     # make a sine wave with a Hanning window
     N = 512
-    t = np.arange(N) / pls.get_fs('dac')
+    t = np.arange(N) / pls.get_fs("dac")
     freq = 55e6
     data = np.sin(2 * np.pi * freq * t) * np.hanning(N)
     template_1 = pls.setup_template(output_port, group=0, template=data)

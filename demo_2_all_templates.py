@@ -19,12 +19,14 @@ ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 store_duration = 2e-6
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
-                   adc_mode=pulsed.AdcMode.Direct,
-                   adc_fsample=pulsed.AdcFSample.G3_2,
-                   dac_mode=pulsed.DacMode.Direct,
-                   dac_fsample=pulsed.DacFSample.G6_4,
-                   ) as pls:
+with pulsed.Pulsed(
+    ext_ref_clk=EXT_REF,
+    address=ADDRESS,
+    adc_mode=pulsed.AdcMode.Direct,
+    adc_fsample=pulsed.AdcFSample.G3_2,
+    dac_mode=pulsed.DacMode.Direct,
+    dac_fsample=pulsed.DacFSample.G6_4,
+) as pls:
     # Select inputs to store and the duration of each store
     pls.set_store_ports([1, 2, 3, 4, 5, 6, 7, 8])  # all ports
     pls.set_store_duration(store_duration)  # 4096 ns
@@ -32,7 +34,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     ######################################################################
     # create a 16 4088-sample-long templates on each output
     N = pulsed.MAX_TEMPLATE_LEN
-    t = np.arange(N) / pls.get_fs('dac')
+    t = np.arange(N) / pls.get_fs("dac")
     # use some window functions available in NumPy
     window = (
         np.bartlett(N),
@@ -51,7 +53,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
         for template_index in range(16):  # loop through all templates
             freq = 10e6 + 1e6 * template_index
             s = np.sin(2 * np.pi * freq * t) * window[port - 1]
-            group = template_index//8  # 8 templates in each group
+            group = template_index // 8  # 8 templates in each group
             temp = pls.setup_template(port, group=group, template=s)
             templates[port - 1].append(temp)
 
@@ -60,7 +62,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     # The hardware can average ~1 Gsample/s, when this much data is
     # stored simultaneously the stores must be separated in time for the
     # averaging to keep up
-    samples_per_store = store_duration * pls.get_fs('adc') * 8  # 8 ports,
+    samples_per_store = store_duration * pls.get_fs("adc") * 8  # 8 ports,
     spacing = samples_per_store / 1e9  # to keep up with 1 Gsample/s averaging
     for template_index in range(16):
         T = template_index * spacing  # time for output/input event
@@ -76,6 +78,6 @@ fig, ax = plt.subplots(8, 16, sharex=True, sharey=True)
 for port in range(8):
     for store in range(16):
         ax[port, store].plot(t_arr, data[store, port, :])
-        ax[port, store].axis('off')
+        ax[port, store].axis("off")
 fig.tight_layout()
 fig.show()

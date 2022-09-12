@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 from presto import lockin, utils
 
 
-
 # address of the instrument used
 ADDRESS = "192.168.42.50"
 
@@ -56,13 +55,14 @@ fig.show()
 # Create an instance of the Lockin class to access the instrument
 # Use the digital mixers for both ADC and DAC, 6.4 GSPS for the
 # DAC and 3.2 GSPS for the ADC
-with lockin.Lockin(ext_ref_clk=False, address=ADDRESS,
-                    adc_mode=lockin.AdcMode.Mixed,
-                    adc_fsample=lockin.AdcFSample.G3_2,
-                    dac_mode=lockin.DacMode.Mixed02,
-                    dac_fsample=lockin.DacFSample.G6_4,
-                    ) as lck:
-
+with lockin.Lockin(
+    ext_ref_clk=False,
+    address=ADDRESS,
+    adc_mode=lockin.AdcMode.Mixed,
+    adc_fsample=lockin.AdcFSample.G3_2,
+    dac_mode=lockin.DacMode.Mixed02,
+    dac_fsample=lockin.DacFSample.G6_4,
+) as lck:
 
     # Setup output to drive a few tones at different frequencies and
     # with different detuning with respect to df
@@ -75,11 +75,25 @@ with lockin.Lockin(ext_ref_clk=False, address=ADDRESS,
     # can target any port set. Multiple groups can be output on the same port.
     output_group = lck.add_output_group(out_port, nr_freq=N)
     output_group.set_frequencies(fout + fdet)
-    output_group.set_amplitudes([1.0/N, ] * N)
-    output_group.set_phases([0, ] * N, [-np.pi/2, ] * N)  # upper sideband
+    output_group.set_amplitudes(
+        [
+            1.0 / N,
+        ]
+        * N
+    )
+    output_group.set_phases(
+        [
+            0,
+        ]
+        * N,
+        [
+            -np.pi / 2,
+        ]
+        * N,
+    )  # upper sideband
 
     # the frequencies to measure
-    f_raw = np.arange(nr_freq*nr_iter) * df + df
+    f_raw = np.arange(nr_freq * nr_iter) * df + df
     comb_f, df = lck.tune(f_raw, df)
     comb_a = np.ones(nr_freq) / nr_freq
 
@@ -90,7 +104,6 @@ with lockin.Lockin(ext_ref_clk=False, address=ADDRESS,
 
     # Set df used in this measurement
     lck.set_df(df)
-
 
     # Create an input group. An input group can only be connected to one
     # input. To measure at multiple inputs, create more groups.
@@ -110,14 +123,14 @@ with lockin.Lockin(ext_ref_clk=False, address=ADDRESS,
         # transient behaviour in the system. For sensitive measurements, give the
         # outputs/inputs some time to stabilize. An option (for lower df measurements)
         # is to capture pixels during this time and see the system stabilize.
-        time.sleep(.1)
+        time.sleep(0.1)
 
         # Measure a number of pixels
         pixel_dict = lck.get_pixels(NSTORE)
         freq, pixel_i, pixel_q = pixel_dict[in_port]
         lsb, hsb = utils.untwist_downconversion(pixel_i, pixel_q)
         # plot the high sideband
-        ax.plot(mix_f + freq, 20*np.log10(np.mean(np.abs(hsb[-NAVERAGE:]), axis=0)), "b.")
+        ax.plot(mix_f + freq, 20 * np.log10(np.mean(np.abs(hsb[-NAVERAGE:]), axis=0)), "b.")
         print(f"{i}/{nr_iter}")
 
     # Set all outputs to 0

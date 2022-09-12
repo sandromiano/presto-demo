@@ -18,12 +18,14 @@ freq = 100e6  # Hz
 ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
-with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
-                   adc_mode=pulsed.AdcMode.Direct,
-                   adc_fsample=pulsed.AdcFSample.G3_2,
-                   dac_mode=pulsed.DacMode.Direct,
-                   dac_fsample=pulsed.DacFSample.G6_4,
-                   ) as pls:
+with pulsed.Pulsed(
+    ext_ref_clk=EXT_REF,
+    address=ADDRESS,
+    adc_mode=pulsed.AdcMode.Direct,
+    adc_fsample=pulsed.AdcFSample.G3_2,
+    dac_mode=pulsed.DacMode.Direct,
+    dac_fsample=pulsed.DacFSample.G6_4,
+) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
     # Note: storing is used to look at the raw time data, it's not necessarily
@@ -38,7 +40,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     # for carrier generator 1.
     # This template will be scaled by the final output scaler.
     N = pulsed.MAX_TEMPLATE_LEN
-    t = np.arange(N) / pls.get_fs('dac')
+    t = np.arange(N) / pls.get_fs("dac")
     s = np.hanning(N)  # use the Hanning window as envelope shape
     template_1 = pls.setup_template(
         output_port=output_port,
@@ -72,7 +74,7 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     # Match templates, use a sine and a cosine at the same frequency as
     # the generated pulse to get a point in the I/Q-plane
     # Length of the match is half the length of the generated pulse
-    t = np.arange(pulsed.MAX_TEMPLATE_LEN // 2) / pls.get_fs('adc')
+    t = np.arange(pulsed.MAX_TEMPLATE_LEN // 2) / pls.get_fs("adc")
     tc = np.cos(2 * np.pi * freq * t)
     ts = -np.sin(2 * np.pi * freq * t)
     match_pair = pls.setup_template_matching_pair(1, tc, ts)
@@ -103,20 +105,16 @@ with pulsed.Pulsed(ext_ref_clk=EXT_REF, address=ADDRESS,
     match_data = pls.get_template_matching_data(match_pair)
 
 # Plot a few of the time traces
-fig1, ax1 = plt.subplots(8,
-                         sharex=True,
-                         sharey=True,
-                         tight_layout=True,
-                         figsize=(12.8, 9.6))
+fig1, ax1 = plt.subplots(8, sharex=True, sharey=True, tight_layout=True, figsize=(12.8, 9.6))
 for i in range(8):
     ax1[i].plot(1e6 * t_arr, data[i * 64, 0, :])
-    ax1[i].axis('off')
+    ax1[i].axis("off")
 fig1.show()
 
 # Plot template match data as points in the I/Q plane
 fig2, ax2 = plt.subplots(tight_layout=True)
-ax2.axhline(0, c='tab:gray', alpha=0.25)
-ax2.axvline(0, c='tab:gray', alpha=0.25)
+ax2.axhline(0, c="tab:gray", alpha=0.25)
+ax2.axvline(0, c="tab:gray", alpha=0.25)
 ax2.scatter(
     match_data[0] / len(tc),  # I quadrature
     match_data[1] / len(ts),  # Q quadrature
