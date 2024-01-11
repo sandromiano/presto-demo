@@ -16,9 +16,7 @@ with pulsed.Pulsed(
     ext_ref_clk=EXT_REF,
     address=ADDRESS,
     adc_mode=pulsed.AdcMode.Direct,
-    adc_fsample=pulsed.AdcFSample.G3_2,
     dac_mode=pulsed.DacMode.Direct,
-    dac_fsample=pulsed.DacFSample.G6_4,
 ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store

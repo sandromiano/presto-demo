@@ -4,13 +4,17 @@ Output a series of pulses with varying amplitude and phase.
 Load input templates to implement IQ demodulation by means of template matching.
 Plot the results in the IQ plane.
 
-Connect Out 1 to In 1.
+Connect one output port directly to one input port.
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
 from presto import pulsed
 
+# Any port on Vivace
+# Any port on Presto wide, wamp or low
+# Ports 5-8 on Presto-8-QC
+# Ports 9-16 on Presto-16-QC
 input_port = 1
 output_port = 1
 freq = 100e6  # Hz
@@ -22,9 +26,7 @@ with pulsed.Pulsed(
     ext_ref_clk=EXT_REF,
     address=ADDRESS,
     adc_mode=pulsed.AdcMode.Direct,
-    adc_fsample=pulsed.AdcFSample.G3_2,
     dac_mode=pulsed.DacMode.Direct,
-    dac_fsample=pulsed.DacFSample.G6_4,
 ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store

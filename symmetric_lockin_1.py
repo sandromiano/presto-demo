@@ -15,7 +15,16 @@ ADDRESS = "192.168.88.59"  # Presto's IP address
 # *** define some parameters ***
 # ******************************
 
+# Any port on Vivace
+# Any port on Presto wide
+# Ports 5-8 on Presto-8-QC
+# Ports 9-16 on Presto-16-QC
 INPUT_PORT = 1
+
+# Any port on Vivace
+# Any port on Presto wide or wamp
+# Ports 5-6 on Presto-8-QC
+# Ports 9-12 on Presto-16-QC
 OUTPUT_PORT = 1  # can be a list
 
 # 1 MHz, demodulation rate

@@ -7,8 +7,8 @@ Normally Lockin.tune can be used to make sure that all frequencies
 are tuned to df, but in this example detuning is used to generate
 something interesting in loopback.
 
-Connect output port 1 to input port 1, optionally monitor output
-with oscilloscope on port 2.
+Connect one output port to one input port, optionally monitor output
+with oscilloscope on another output port.
 """
 import time
 import numpy as np
@@ -20,9 +20,17 @@ from presto import lockin, utils
 ADDRESS = "192.168.42.50"
 
 # input port used in this measurement
+# Any port on Vivace
+# Any port on Presto wide
+# Ports 5-8 on Presto-8-QC
+# Ports 9-16 on Presto-16-QC
 in_port = 1
 
 # output ports used in this meeasurement
+# Any port on Vivace
+# Any port on Presto wide or wamp
+# Ports 5-6 on Presto-8-QC
+# Ports 9-12 on Presto-16-QC
 # A group of frequencies can be output on any number of ports,
 # output one for loopback and one for monitoring witn oscilloscope.
 out_port = [1, 2]
@@ -59,11 +67,8 @@ with lockin.Lockin(
     ext_ref_clk=False,
     address=ADDRESS,
     adc_mode=lockin.AdcMode.Mixed,
-    adc_fsample=lockin.AdcFSample.G3_2,
-    dac_mode=lockin.DacMode.Mixed02,
-    dac_fsample=lockin.DacFSample.G6_4,
+    dac_mode=lockin.DacMode.Mixed,
 ) as lck:
-
     # Setup output to drive a few tones at different frequencies and
     # with different detuning with respect to df
     N = 6
