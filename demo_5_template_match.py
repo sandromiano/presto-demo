@@ -15,11 +15,11 @@ from presto import pulsed
 # Any port on Presto wide, wamp or low
 # Ports 5-8 on Presto-8-QC
 # Ports 9-16 on Presto-16-QC
-input_port = 1
-output_port = 1
+input_port = 9
+output_port = 9
 freq = 100e6  # Hz
 
-ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
+ADDRESS = "192.168.20.19"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 with pulsed.Pulsed(
@@ -43,12 +43,13 @@ with pulsed.Pulsed(
     # This template will be scaled by the final output scaler.
     N = pulsed.MAX_TEMPLATE_LEN
     t = np.arange(N) / pls.get_fs("dac")
+    print(t)
     s = np.hanning(N)  # use the Hanning window as envelope shape
     template_1 = pls.setup_template(
         output_port=output_port,
         group=0,
         template=s,
-        envelope=1,
+        envelope=True,
     )
 
     # setup a list of frequencies for carrier generator 1
@@ -65,7 +66,7 @@ with pulsed.Pulsed(
 
     # setup a list of scales, decrease the scale with every iteration
     NSCALES = NFREQ  # use same number of steps as for the frequency
-    scales = np.linspace(1.0, 0.01, NSCALES)
+    scales = np.linspace(1.0, 0.1, NSCALES)
     pls.setup_scale_lut(
         output_ports=output_port,
         group=0,
@@ -79,7 +80,7 @@ with pulsed.Pulsed(
     t = np.arange(pulsed.MAX_TEMPLATE_LEN // 2) / pls.get_fs("adc")
     tc = np.cos(2 * np.pi * freq * t)
     ts = -np.sin(2 * np.pi * freq * t)
-    match_pair = pls.setup_template_matching_pair(1, tc, ts)
+    match_pair = pls.setup_template_matching_pair(input_port, tc, ts)
 
     ######################################################################
     # define the sequence of pulses and data stores in time

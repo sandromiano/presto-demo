@@ -17,14 +17,14 @@ from presto import lockin, utils
 
 
 # address of the instrument used
-ADDRESS = "192.168.42.50"
+ADDRESS = "192.168.20.19"
 
 # input port used in this measurement
 # Any port on Vivace
 # Any port on Presto wide
 # Ports 5-8 on Presto-8-QC
 # Ports 9-16 on Presto-16-QC
-in_port = 1
+in_port = 9
 
 # output ports used in this meeasurement
 # Any port on Vivace
@@ -33,7 +33,7 @@ in_port = 1
 # Ports 9-12 on Presto-16-QC
 # A group of frequencies can be output on any number of ports,
 # output one for loopback and one for monitoring witn oscilloscope.
-out_port = [1, 2]
+out_port = [9, 10]
 
 # Use a high df when sweeping to cover a wide frequency range with a
 # resonable number of points

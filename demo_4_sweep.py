@@ -11,10 +11,10 @@ from presto import pulsed
 # Any port on Presto wide, wamp or low
 # Ports 5-8 on Presto-8-QC
 # Ports 9-16 on Presto-16-QC
-input_port = 1
-output_port = 1
+input_port = 9
+output_port = 9
 
-ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
+ADDRESS = "192.168.20.19"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 with pulsed.Pulsed(
