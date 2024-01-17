@@ -1,4 +1,4 @@
-""" Create one output template and sample it.
+""" Create one output template, upconvert it, sample it and downconvert it.
 
 Connect one output port directly to one input port.
 """
@@ -15,7 +15,7 @@ from presto.utils import sin2
 output_port = 1
 input_port = 1
 
-ADDRESS = "192.168.88.65"  # set address/hostname of Vivace/Presto here
+ADDRESS = "192.168.20.19"  # set address/hostname of Vivace/Presto here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 
@@ -59,8 +59,8 @@ with pulsed.Pulsed(
     t_arr, data = pls.get_store_data()
 
 fig, ax = plt.subplots(tight_layout=True)
-ax.plot(1e9 * t_arr, data[0, 0, :].real, label="store 0, port 0")
-ax.plot(1e9 * t_arr, data[0, 0, :].imag, label="store 0, port 0")
+ax.plot(1e9 * t_arr, data[0, 0, :].real, label="real")
+ax.plot(1e9 * t_arr, data[0, 0, :].imag, label="imag")
 ax.set_xlabel("Time [ns]")
 ax.set_ylabel("Input signal [FS]")
 ax.legend()
