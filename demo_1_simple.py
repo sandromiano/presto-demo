@@ -1,29 +1,27 @@
 """ Create one output template and sample it.
 
-Connect one output port directly to one input port.
+Connect output port 9 directly to input port 9 (loopback)
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
 from presto import pulsed
 
-output_port = 1
-input_port = 1
+OUTPUT_PORT = 9
+INPUT_PORT = 9
 
-ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
+ADDRESS = "192.168.20.4"  # set address/hostname of Presto here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 with pulsed.Pulsed(
     ext_ref_clk=EXT_REF,
     address=ADDRESS,
     adc_mode=pulsed.AdcMode.Direct,
-    adc_fsample=pulsed.AdcFSample.G3_2,
     dac_mode=pulsed.DacMode.Direct,
-    dac_fsample=pulsed.DacFSample.G6_4,
 ) as pls:
     ######################################################################
     # Select input ports to store and the duration of each store
-    pls.set_store_ports(input_port)
+    pls.set_store_ports(INPUT_PORT)
     pls.set_store_duration(800e-9)  # 800 ns
 
     ######################################################################
@@ -33,11 +31,11 @@ with pulsed.Pulsed(
     t = np.arange(N) / pls.get_fs("dac")
     freq = 55e6
     data = np.sin(2 * np.pi * freq * t) * np.hanning(N)
-    template_1 = pls.setup_template(output_port, group=0, template=data)
+    template_1 = pls.setup_template(OUTPUT_PORT, group=0, template=data)
 
     ######################################################################
     # setup scale for the (output, group). only one scale used
-    pls.setup_scale_lut(output_port, group=0, scales=1.0)
+    pls.setup_scale_lut(OUTPUT_PORT, group=0, scales=1.0)
 
     ######################################################################
     # define the sequence of pulses and data stores in time

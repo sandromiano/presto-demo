@@ -7,25 +7,26 @@ Normally Lockin.tune can be used to make sure that all frequencies
 are tuned to df, but in this example detuning is used to generate
 something interesting in loopback.
 
-Connect output port 1 to input port 1, optionally monitor output
-with oscilloscope on port 2.
+Connect output port 9 to input port 9, optionally monitor output
+with oscilloscope on port 10.
 """
-import time
 import numpy as np
 import matplotlib.pyplot as plt
-from presto import lockin, utils
+
+from presto import lockin
+from presto.utils import untwist_downconversion
 
 
 # address of the instrument used
-ADDRESS = "192.168.42.50"
+ADDRESS = "192.168.20.4"
 
 # input port used in this measurement
-in_port = 1
+INPUT_PORT = 9
 
 # output ports used in this meeasurement
 # A group of frequencies can be output on any number of ports,
 # output one for loopback and one for monitoring witn oscilloscope.
-out_port = [1, 2]
+OUTPUT_PORTS = [9, 10]
 
 # Use a high df when sweeping to cover a wide frequency range with a
 # resonable number of points
@@ -59,11 +60,8 @@ with lockin.Lockin(
     ext_ref_clk=False,
     address=ADDRESS,
     adc_mode=lockin.AdcMode.Mixed,
-    adc_fsample=lockin.AdcFSample.G3_2,
-    dac_mode=lockin.DacMode.Mixed02,
-    dac_fsample=lockin.DacFSample.G6_4,
+    dac_mode=lockin.DacMode.Mixed,
 ) as lck:
-
     # Setup output to drive a few tones at different frequencies and
     # with different detuning with respect to df
     N = 6
@@ -73,7 +71,7 @@ with lockin.Lockin(
     # Add an output group with N frequencies. This group can be output on
     # any number of ports. More output groups can be added, and each group
     # can target any port set. Multiple groups can be output on the same port.
-    output_group = lck.add_output_group(out_port, nr_freq=N)
+    output_group = lck.add_output_group(OUTPUT_PORTS, nr_freq=N)
     output_group.set_frequencies(fout + fdet)
     output_group.set_amplitudes(
         [
@@ -99,8 +97,7 @@ with lockin.Lockin(
 
     # Set up the digital mixers for adc and dac to mix the IF signals
     # with a carrier, the outputs was setup to drive the upper sideband.
-    lck.hardware.configure_mixer(mix_f, in_ports=in_port, sync=False)
-    lck.hardware.configure_mixer(mix_f, out_ports=out_port, sync=True)
+    lck.hardware.configure_mixer(mix_f, in_ports=INPUT_PORT, out_ports=OUTPUT_PORTS)
 
     # Set df used in this measurement
     lck.set_df(df)
@@ -109,7 +106,7 @@ with lockin.Lockin(
     # input. To measure at multiple inputs, create more groups.
     # The total number of frequencies available is limited, depending one
     # the instrument version used and the number of output frequencies used.
-    input_group = lck.add_input_group(in_port, nr_freq)
+    input_group = lck.add_input_group(INPUT_PORT, nr_freq)
 
     # run nr_iter measurements
     for i in range(nr_iter):
@@ -123,14 +120,16 @@ with lockin.Lockin(
         # transient behaviour in the system. For sensitive measurements, give the
         # outputs/inputs some time to stabilize. An option (for lower df measurements)
         # is to capture pixels during this time and see the system stabilize.
-        time.sleep(0.1)
+        lck.hardware.sleep(0.1, False)
 
         # Measure a number of pixels
         pixel_dict = lck.get_pixels(NSTORE)
-        freq, pixel_i, pixel_q = pixel_dict[in_port]
-        lsb, hsb = utils.untwist_downconversion(pixel_i, pixel_q)
+        freq, pixel_i, pixel_q = pixel_dict[INPUT_PORT]
+        lsb, hsb = untwist_downconversion(pixel_i, pixel_q)
         # plot the high sideband
         ax.plot(mix_f + freq, 20 * np.log10(np.mean(np.abs(hsb[-NAVERAGE:]), axis=0)), "b.")
+        fig.canvas.draw()
+        plt.pause(0.1)
         print(f"{i}/{nr_iter}")
 
     # Set all outputs to 0

@@ -4,33 +4,31 @@ Output a series of pulses with varying amplitude and phase.
 Load input templates to implement IQ demodulation by means of template matching.
 Plot the results in the IQ plane.
 
-Connect Out 1 to In 1.
+Connect Out 9 to In 9.
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
 from presto import pulsed
 
-input_port = 1
-output_port = 1
+INPUT_PORT = 9
+OUTPUT_PORT = 9
 freq = 100e6  # Hz
 
-ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
+ADDRESS = "192.168.20.4"  # set address/hostname of Vivace here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 with pulsed.Pulsed(
     ext_ref_clk=EXT_REF,
     address=ADDRESS,
     adc_mode=pulsed.AdcMode.Direct,
-    adc_fsample=pulsed.AdcFSample.G3_2,
     dac_mode=pulsed.DacMode.Direct,
-    dac_fsample=pulsed.DacFSample.G6_4,
 ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
     # Note: storing is used to look at the raw time data, it's not necessarily
     # linked to template matching.
-    pls.set_store_ports(input_port)
+    pls.set_store_ports(INPUT_PORT)
     pls.set_store_duration(2e-6)
 
     ######################################################################
@@ -43,10 +41,10 @@ with pulsed.Pulsed(
     t = np.arange(N) / pls.get_fs("dac")
     s = np.hanning(N)  # use the Hanning window as envelope shape
     template_1 = pls.setup_template(
-        output_port=output_port,
+        output_port=OUTPUT_PORT,
         group=0,
         template=s,
-        envelope=1,
+        envelope=True,
     )
 
     # setup a list of frequencies for carrier generator 1
@@ -55,7 +53,7 @@ with pulsed.Pulsed(
     f = freq * np.ones(NFREQ)
     p = np.linspace(0, 4 * 2 * np.pi, NFREQ)
     pls.setup_freq_lut(
-        output_ports=output_port,
+        output_ports=OUTPUT_PORT,
         group=0,
         frequencies=f,
         phases=p,
@@ -65,7 +63,7 @@ with pulsed.Pulsed(
     NSCALES = NFREQ  # use same number of steps as for the frequency
     scales = np.linspace(1.0, 0.01, NSCALES)
     pls.setup_scale_lut(
-        output_ports=output_port,
+        output_ports=OUTPUT_PORT,
         group=0,
         scales=scales,
     )
@@ -77,13 +75,13 @@ with pulsed.Pulsed(
     t = np.arange(pulsed.MAX_TEMPLATE_LEN // 2) / pls.get_fs("adc")
     tc = np.cos(2 * np.pi * freq * t)
     ts = -np.sin(2 * np.pi * freq * t)
-    match_pair = pls.setup_template_matching_pair(1, tc, ts)
+    match_pair = pls.setup_template_matching_pair(INPUT_PORT, tc, ts)
 
     ######################################################################
     # define the sequence of pulses and data stores in time
     # At the end of the time sequence, increment frequency and scale index.
     T = 0.0
-    pls.reset_phase(T, output_port)
+    pls.reset_phase(T, OUTPUT_PORT)
     pls.output_pulse(T, template_1)
     pls.store(T)
 
@@ -94,8 +92,8 @@ with pulsed.Pulsed(
     # after the pulse, jump to next frequency and next scale.
     # Both are set to increment every time.
     T = 5e-6
-    pls.next_frequency(T, output_port)
-    pls.next_scale(T, output_port)
+    pls.next_frequency(T, OUTPUT_PORT)
+    pls.next_scale(T, OUTPUT_PORT)
 
     # Repeat the time sequence over the entire lookup tables.
     # Both frequency and scale are incremented every time

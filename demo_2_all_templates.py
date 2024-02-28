@@ -5,30 +5,33 @@ Set different window functions on each port, and different frequencies
 on each template.
 Sample the all inputs, 16 times.
 
-This example stresses the input/output bandwidth of Vivace.
+This example stresses the input/output bandwidth of Presto.
 
-Connect all outputs to all inputs in loop-back: 
-Out 1 to In 1, Out 2 to In 2, ...
+Connect outputs 9-16 to inputs 9-16 loop-back: 
+Out 9 to In 9, Out 10 to In 10, ...
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
 from presto import pulsed
 
-ADDRESS = "192.168.42.50"  # set address/hostname of Vivace here
+ADDRESS = "192.168.20.4"  # set address/hostname of Presto here
 EXT_REF = False  # set to True to use external 10 MHz reference
+
+OUTPUT_PORTS = range(9, 17)
+INPUT_PORTS = range(9, 17)
+assert len(OUTPUT_PORTS) == len(INPUT_PORTS)
+NR_PORTS = len(OUTPUT_PORTS)
 
 store_duration = 2e-6
 with pulsed.Pulsed(
     ext_ref_clk=EXT_REF,
     address=ADDRESS,
     adc_mode=pulsed.AdcMode.Direct,
-    adc_fsample=pulsed.AdcFSample.G3_2,
     dac_mode=pulsed.DacMode.Direct,
-    dac_fsample=pulsed.DacFSample.G6_4,
 ) as pls:
     # Select inputs to store and the duration of each store
-    pls.set_store_ports([1, 2, 3, 4, 5, 6, 7, 8])  # all ports
+    pls.set_store_ports(INPUT_PORTS)  # all ports
     pls.set_store_duration(store_duration)  # 4096 ns
 
     ######################################################################
@@ -46,36 +49,36 @@ with pulsed.Pulsed(
         np.kaiser(N, 6),
         np.kaiser(N, 8.6),
     )
-    templates = [[] for _ in range(8)]
-    for port in range(1, 9):  # loop through all output ports
+    templates = [[] for _ in range(NR_PORTS)]
+    for idx, port in enumerate(OUTPUT_PORTS):  # loop through all output ports
         pls.setup_scale_lut(port, group=0, scales=1.0)
         pls.setup_scale_lut(port, group=1, scales=1.0)
         for template_index in range(16):  # loop through all templates
             freq = 10e6 + 1e6 * template_index
-            s = np.sin(2 * np.pi * freq * t) * window[port - 1]
+            s = np.sin(2 * np.pi * freq * t) * window[idx]
             group = template_index // 8  # 8 templates in each group
             temp = pls.setup_template(port, group=group, template=s)
-            templates[port - 1].append(temp)
+            templates[idx].append(temp)
 
     ######################################################################
     # define the sequence of pulses and data stores in time
     # The hardware can average ~1 Gsample/s, when this much data is
     # stored simultaneously the stores must be separated in time for the
     # averaging to keep up
-    samples_per_store = store_duration * pls.get_fs("adc") * 8  # 8 ports,
+    samples_per_store = store_duration * pls.get_fs("adc") * NR_PORTS  # 8 ports,
     spacing = samples_per_store / 1e9  # to keep up with 1 Gsample/s averaging
     for template_index in range(16):
         T = template_index * spacing  # time for output/input event
-        for port in range(1, 9):
-            pls.output_pulse(T, templates[port - 1][template_index])
+        for idx, port in enumerate(OUTPUT_PORTS):
+            pls.output_pulse(T, templates[idx][template_index])
         pls.store(T)
 
     # actually perform the measurement
     pls.run(period=spacing * 16, repeat_count=1, num_averages=1)
     t_arr, data = pls.get_store_data()
 
-fig, ax = plt.subplots(8, 16, sharex=True, sharey=True)
-for port in range(8):
+fig, ax = plt.subplots(NR_PORTS, 16, sharex=True, sharey=True)
+for port in range(NR_PORTS):
     for store in range(16):
         ax[port, store].plot(t_arr, data[store, port, :])
         ax[port, store].axis("off")
