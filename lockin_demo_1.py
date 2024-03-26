@@ -1,4 +1,4 @@
-""" Demonstrate simple use of multifrequency lockin measurements
+"""Demonstrate simple use of multifrequency lockin measurements
 
 Drive some signals with different detuning from df and measure
 the effect of this detuning with a multifrequency sweep.
@@ -10,6 +10,7 @@ something interesting in loopback.
 Connect output port 9 to input port 9, optionally monitor output
 with oscilloscope on port 10.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 

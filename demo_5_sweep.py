@@ -1,7 +1,8 @@
-""" Do a bi-dimentional sweep with frequency and amplitude.
+"""Do a bi-dimentional sweep with frequency and amplitude.
 
 Connect Out 9 to In 9.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -35,14 +36,14 @@ with pulsed.Pulsed(
     template_1 = pls.setup_template(OUTPUT_PORT, 0, s, envelope=True)
 
     # setup a list of frequencies for carrier generator 1
-    NFREQ = 8
+    NFREQ = 4
     f = np.logspace(6, 8, NFREQ)
     p = np.zeros(NFREQ)
     pls.setup_freq_lut(output_ports=OUTPUT_PORT, group=0, frequencies=f, phases=p, axis=-1)
 
     # setup a list of scales
-    NSCALES = 8
-    scales = np.linspace(1.0, 0.01, NSCALES)
+    NSCALES = 5
+    scales = np.logspace(0, -1, NSCALES)
     pls.setup_scale_lut(output_ports=OUTPUT_PORT, group=0, scales=scales, axis=-2)
 
     ######################################################################
@@ -65,7 +66,14 @@ with pulsed.Pulsed(
     pls.run(period=T, repeat_count=(NSCALES, NFREQ), num_averages=100)
     t_arr, data = pls.get_store_data()
 
-fig, ax = plt.subplots(8, 8, sharex=True, sharey=True, tight_layout=True, figsize=(12.8, 9.6))
+fig, ax = plt.subplots(
+    NFREQ,
+    NSCALES,
+    sharex=True,
+    sharey=True,
+    tight_layout=True,
+    figsize=(12.8, 9.6),
+)
 for freq in range(NFREQ):
     for scale in range(NSCALES):
         ax[freq, scale].plot(1e6 * t_arr, data[scale * NFREQ + freq, 0, :])

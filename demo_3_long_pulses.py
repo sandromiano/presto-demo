@@ -1,9 +1,10 @@
-""" Create a long template by concatenating multiple shorter templates.
+"""Create a long template by concatenating multiple shorter templates.
 
 Also demonstrate the convenience method setup_long_drive.
 
 Connect Out 9 to In 9 and Out 10 to In 10.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 

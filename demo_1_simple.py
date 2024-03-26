@@ -1,7 +1,8 @@
-""" Create one output template and sample it.
+"""Create one output template and sample it.
 
 Connect output port 9 directly to input port 9 (loopback)
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 

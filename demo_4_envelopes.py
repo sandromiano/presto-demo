@@ -1,7 +1,8 @@
-""" Use templates as envelopes for the carrier generator.
+"""Use templates as envelopes for the carrier generator.
 
 Connect Out 9 to In 9.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 

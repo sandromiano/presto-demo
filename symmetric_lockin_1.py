@@ -3,6 +3,7 @@
 have same amplitude and random (fixed) phase. Acquire some raw lock-in measurements at 1 MHz rate,
 and some mean and standard deviation at 4 kHz rate. Compare the results and plot.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import firwin

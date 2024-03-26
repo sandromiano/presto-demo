@@ -1,4 +1,4 @@
-""" Template matching demo.
+"""Template matching demo.
 
 Output a series of pulses with varying amplitude and phase.
 Load input templates to implement IQ demodulation by means of template matching.
@@ -6,6 +6,7 @@ Plot the results in the IQ plane.
 
 Connect Out 9 to In 9.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 

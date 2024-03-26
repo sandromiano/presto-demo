@@ -1,4 +1,4 @@
-""" Max out templates!
+"""Max out templates!
 
 Create 16 templates on each port, and output all 128 of them.
 Set different window functions on each port, and different frequencies
@@ -7,9 +7,10 @@ Sample the all inputs, 16 times.
 
 This example stresses the input/output bandwidth of Presto.
 
-Connect outputs 9-16 to inputs 9-16 loop-back: 
+Connect outputs 9-16 to inputs 9-16 loop-back:
 Out 9 to In 9, Out 10 to In 10, ...
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
