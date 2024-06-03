@@ -32,8 +32,7 @@ with pulsed.Pulsed(
     dac_mode=pulsed.DacMode.Direct,
 ) as pls:
     # Select inputs to store and the duration of each store
-    pls.set_store_ports(INPUT_PORTS)  # all ports
-    pls.set_store_duration(store_duration)  # 4096 ns
+    pls.setup_store(INPUT_PORTS, store_duration)
 
     ######################################################################
     # create a 16 4088-sample-long templates on each output

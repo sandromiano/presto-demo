@@ -22,8 +22,7 @@ with pulsed.Pulsed(
 ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
-    pls.set_store_ports(INPUT_PORT)
-    pls.set_store_duration(2e-6)
+    pls.setup_store(INPUT_PORT, 2e-6)
 
     # setup output scale for the port and group, only one scale used
     pls.setup_scale_lut(OUTPUT_PORT, group=0, scales=1.0)

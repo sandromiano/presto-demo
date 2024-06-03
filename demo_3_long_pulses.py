@@ -24,8 +24,7 @@ with pulsed.Pulsed(
 ) as pls:
     ######################################################################
     # Select inputs to store and the duration of each store
-    pls.set_store_ports(INPUT_PORTS)
-    pls.set_store_duration(9.5e-6)
+    pls.setup_store(INPUT_PORTS, 9.5e-6)
 
     ######################################################################
     # create a long pulse using multiple templates on first port

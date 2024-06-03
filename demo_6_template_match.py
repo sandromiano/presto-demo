@@ -29,8 +29,7 @@ with pulsed.Pulsed(
     # Select inputs to store and the duration of each store
     # Note: storing is used to look at the raw time data, it's not necessarily
     # linked to template matching.
-    pls.set_store_ports(INPUT_PORT)
-    pls.set_store_duration(2e-6)
+    pls.setup_store(INPUT_PORT, 2e-6)
 
     ######################################################################
     # Sinewave generator, template as envelope
