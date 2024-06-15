@@ -8,10 +8,10 @@ import numpy as np
 
 from presto import pulsed
 
-OUTPUT_PORT = 9
-INPUT_PORT = 9
+OUTPUT_PORT = 1
+INPUT_PORT = 1
 
-ADDRESS = "192.168.20.4"  # set address/hostname of Presto here
+ADDRESS = "192.168.20.23"  # set address/hostname of Presto here
 EXT_REF = False  # set to True to use external 10 MHz reference
 
 with pulsed.Pulsed(
